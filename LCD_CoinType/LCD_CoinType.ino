@@ -26,18 +26,20 @@ void setup() {
   lcd.createChar(0, customChar);
   lcd.begin(16, 2);
   lcd.print("Press the button");
-}
-// Checks for initial button press and asks for the coin type
-void firstCheck(){
-    while (true){
+  while (true){
       button1State = digitalRead(button1Pin);
       if (button1State == HIGH){
         lcd.clear();
-        lcd.print("Select coin type:");
-        delay(300);
         return;
       }
     }
+}
+// Checks for initial button press and asks for the coin type
+void firstCheck(){
+  lcd.clear();
+  lcd.print("Select coin type:");
+  delay(300);
+  return;
   }
 //Toggles coin type and selects after a 3 second gap
 int selectCoin(){
@@ -45,39 +47,38 @@ int selectCoin(){
     lcd.setCursor(0,1);
     switch(counter){
       case 1:
-        lcd.print("Penny ");
-      	lcd.write((byte)0);
-      	lcd.print("1    ");
-        calib_type = 1;
-        break;
-      case 2:
         lcd.print("Nickel ");
-     	lcd.write((byte)0);
+     	  lcd.write((byte)0);
       	lcd.print("5   ");
         calib_type = 5;
         break;
-      case 3:
+      case 2:
         lcd.print("Dime ");
       	lcd.write((byte)0);
       	lcd.print("10   ");
         calib_type = 10;
         break;
-      case 4:
+      case 3:
         lcd.print("Quarter ");
       	lcd.write((byte)0);
       	lcd.print("25");
         calib_type = 25;
         break;
-      case 5:
+      case 4:
         lcd.print("Loonie $1       ");
       	lcd.write((byte)0);
       	lcd.print("1");
         calib_type = 100;
         break;
-      case 6:
+      case 5:
         lcd.print("Toonie $2       ");
         calib_type = 200;
         break;
+        case 6:
+        //Scale mode is calib_type set to 500
+          lcd.print("Scale Mode   ");
+          calib_type = 500;
+          break;
       default:
         lcd.print("Mistake");
         break;
@@ -125,54 +126,42 @@ double calculations(int coin_type, double weight){
     case 25:
     coin_weight = 4.40;
     break;
-    
+
     case 100:
-    	lcd.setCursor(0,0);
-    	lcd.print("Made before 2011?");
-      lcd.setCursor(0,1);
-    	lcd.print("B1: Yes B2: No");
-        while(true){
-          button1State = digitalRead(button1Pin);
-          button2State = digitalRead(button2Pin);
-          if (button1State == HIGH){
-            coin_weight = 7;
-            break;
-          }
-          else if (button2State == HIGH){
-            coin_weight = 6.27;
-            break;
-          } 
-       }
+    	coin_weight = 6.27;
     	break;
+      
   case 200:
-    lcd.setCursor(0,0);
-    lcd.print("Made before 2011?");
-    lcd.setCursor(0,1);
-    lcd.print("B1: Yes B2: No  ");
-    while(true){
-      button1State = digitalRead(button1Pin);
-      button2State = digitalRead(button2Pin);
-      if (button1State == HIGH){
-        coin_weight = 7.3;
-        break;
-      }
-      else if (button2State == HIGH){
-        coin_weight = 6.92;
-        break;
-      } 
-    }
+    coin_weight = 6.92;
     break;
+  case 500:
+    return scaleMode();
   }
   	lcd.clear();
   	return (weight / coin_weight);
 }
-  
+void check_reloop(){
+lcd.setCursor(0,1);
+lcd.print("Press B1 to redo");
+while(true){
+  button1State = digitalRead(button1Pin);
+  if (button1State == HIGH){
+    delay(300);
+    return;
+    
+  }
+  }
+}
+double scaleMode(){
+  //Insert code for scale mode here
+  lcd.print("Not Ready yet   ");
+  return (500);
+}
 void loop(){
   firstCheck();
   int coin_type{selectCoin()};
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(calculations(coin_type, scale()));
-  delay(5000);
-  return;
+  check_reloop();
 }
