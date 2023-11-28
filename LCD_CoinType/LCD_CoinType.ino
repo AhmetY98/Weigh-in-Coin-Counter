@@ -1,6 +1,9 @@
 
 #include <LiquidCrystal.h>
+#include <"HX711.h">
 
+#define DOUT  3
+#define CLK  2
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
 const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2, button1Pin{10}, button2Pin{6};
@@ -26,11 +29,28 @@ void setup() {
   lcd.createChar(0, customChar);
   lcd.begin(16, 2);
   lcd.print("Press the button");
+
+  //calibrating the scale
+  Serial.begin(9600);
+  Serial.println("HX711 calibration sketch");
+  Serial.println("Remove all weight from scale");
+  Serial.println("After readings begin, place known weight on scale");
+  Serial.println("Press + or a to increase calibration factor");
+  Serial.println("Press - or z to decrease calibration factor");
+
+  scale.begin(DOUT, CLK);
+  scale.set_scale();
+  scale.tare(); //Reset the scale to 0
+
+  long zero_factor = scale.read_average(); //Get a baseline reading
+  Serial.print("Zero factor: "); //This can be used to remove the need to tare the scale. Useful in permanent scale projects.
+  Serial.println(zero_factor);
   while (true){
       button1State = digitalRead(button1Pin);
       if (button1State == HIGH){
         lcd.clear();
         return;
+
       }
     }
 }
@@ -164,4 +184,24 @@ void loop(){
   lcd.setCursor(0,0);
   lcd.print(calculations(coin_type, scale()));
   check_reloop();
+	
+  scale.set_scale(calibration_factor); //Adjust to this calibration factor
+
+  //might use the screen to calibrate our load cell first
+  Serial.print("Reading: ");
+  Serial.print(scale.get_units(), 1);
+  Serial.print(" g"); //in grams not we need to verify this
+  Serial.print(" calibration_factor: ");
+  Serial.print(calibration_factor);
+  Serial.println();
+
+  if(Serial.available())
+  {
+    char temp = Serial.read();
+    if(temp == '+' || temp == 'a')
+      calibration_factor += 10;
+    else if(temp == '-' || temp == 'z')
+      calibration_factor -= 10;
+  }
+
 }
