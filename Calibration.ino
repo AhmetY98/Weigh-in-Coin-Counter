@@ -33,8 +33,8 @@
 
 #include "HX711.h"
 
-#define DOUT  3
-#define CLK  2
+#define DOUT  9
+#define CLK  8
 
 HX711 scale;
 
