@@ -184,16 +184,8 @@ void loop(){
   lcd.print(calculations(coin_type, scale()));
   check_reloop();
 	
-  scale.set_scale(calibration_factor); //Adjust to this calibration factor
-
-  //might use the screen to calibrate our load cell first
-  Serial.print("Reading: ");
-  Serial.print(scale.get_units(), 1);
-  Serial.print(" g"); //in grams not we need to verify this
-  Serial.print(" calibration_factor: ");
-  Serial.print(calibration_factor);
-  Serial.println();
-
+ 
+ 
   if(Serial.available())
   {
     char temp = Serial.read();
