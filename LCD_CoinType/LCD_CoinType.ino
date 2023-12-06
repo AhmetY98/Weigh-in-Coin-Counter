@@ -2,14 +2,17 @@
 #include <LiquidCrystal.h>
 #include <"HX711.h">
 
-#define DOUT  3
-#define CLK  2
+#define DOUT  9
+#define CLK  8
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
 const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2, button1Pin{10}, button2Pin{6};
 int button1State{1}, button2State{1};
 int counter{1};
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+HX711 scale;
+float calibration_factor = 13130;
+
 int calib_type{0};
 byte customChar[8] = {
   B00100,
@@ -32,19 +35,10 @@ void setup() {
 
   //calibrating the scale
   Serial.begin(9600);
-  Serial.println("HX711 calibration sketch");
-  Serial.println("Remove all weight from scale");
-  Serial.println("After readings begin, place known weight on scale");
-  Serial.println("Press + or a to increase calibration factor");
-  Serial.println("Press - or z to decrease calibration factor");
-
   scale.begin(DOUT, CLK);
   scale.set_scale();
   scale.tare(); //Reset the scale to 0
 
-  long zero_factor = scale.read_average(); //Get a baseline reading
-  Serial.print("Zero factor: "); //This can be used to remove the need to tare the scale. Useful in permanent scale projects.
-  Serial.println(zero_factor);
   while (true){
       button1State = digitalRead(button1Pin);
       if (button1State == HIGH){
@@ -172,8 +166,13 @@ while(true){
   }
   }
 }
+
 double scaleMode(){
   //Insert code for scale mode here
+
+  scale.set_scale(calibration_factor); //Adjust to this calibration factor
+  Serial.print("Reading: ");
+  Serial.print(scale.get_units(10),2);
   lcd.print("Not Ready yet   ");
   return (500);
 }
