@@ -37,7 +37,9 @@ void setup() {
   Serial.begin(9600);
   scale.begin(DOUT, CLK);
   scale.set_scale();
+  scale.set_scale(calibration_factor); //Adjust to this calibration factor
   scale.tare(); //Reset the scale to 0
+  
 
   while (true){
       button1State = digitalRead(button1Pin);
@@ -47,6 +49,26 @@ void setup() {
 
       }
     }
+}
+void loop(){
+  firstCheck();
+  int coin_type{selectCoin()};
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(calculations(coin_type, scaleWeight()));
+  check_reloop();
+	
+ 
+ 
+  if(Serial.available())
+  {
+    char temp = Serial.read();
+    if(temp == '+' || temp == 'a')
+      calibration_factor += 10;
+    else if(temp == '-' || temp == 'z')
+      calibration_factor -= 10;
+  }
+
 }
 // Checks for initial button press and asks for the coin type
 void firstCheck(){
@@ -118,8 +140,9 @@ double scaleWeight(){
   //the weight of the container
   //returns the weight
   scale.set_scale(calibration_factor);
-  Serial.print(scale.get_units(10),2);
-  return(505.8);
+  double WEIGHT=(scale.get_units());
+  Serial.print(WEIGHT);
+  return(WEIGHT);
   //above line is a value so the code runs
 }
 int calculations(int coin_type, double weight){
@@ -178,23 +201,4 @@ while(true){
 //   lcd.print("Not Ready yet   ");
 //   return (500);
 //}
-void loop(){
-  firstCheck();
-  int coin_type{selectCoin()};
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print(calculations(coin_type, scaleWeight()));
-  check_reloop();
-	
- 
- 
-  if(Serial.available())
-  {
-    char temp = Serial.read();
-    if(temp == '+' || temp == 'a')
-      calibration_factor += 10;
-    else if(temp == '-' || temp == 'z')
-      calibration_factor -= 10;
-  }
 
-}
