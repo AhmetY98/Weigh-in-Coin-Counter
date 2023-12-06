@@ -1,6 +1,6 @@
 
 #include <LiquidCrystal.h>
-#include <"HX711.h">
+#include "HX711.h"
 
 #define DOUT  9
 #define CLK  8
@@ -112,15 +112,17 @@ int selectCoin(){
     }
   }
 }
-double scale (){
+double scaleWeight(){
   //measures the total weight on the scale
   //Includes initial calibration and subtracts
   //the weight of the container
   //returns the weight
+  scale.set_scale(calibration_factor);
+  Serial.print(scale.get_units(10),2);
   return(505.8);
   //above line is a value so the code runs
 }
-double calculations(int coin_type, double weight){
+int calculations(int coin_type, double weight){
   //divides by the weight of each coin 
   double coin_weight{0};
   switch (coin_type){
@@ -148,11 +150,11 @@ double calculations(int coin_type, double weight){
   case 200:
     coin_weight = 6.92;
     break;
-  case 500:
-    return scaleMode();
+  // case 500:
+  //   return scaleMode();
   }
   	lcd.clear();
-  	return (weight / coin_weight);
+  	return (int(round(weight / coin_weight)));
 }
 void check_reloop(){
 lcd.setCursor(0,1);
@@ -167,21 +169,21 @@ while(true){
   }
 }
 
-double scaleMode(){
-  //Insert code for scale mode here
+// double scaleMode(){
+//   //Insert code for scale mode here
 
-  scale.set_scale(calibration_factor); //Adjust to this calibration factor
-  Serial.print("Reading: ");
-  Serial.print(scale.get_units(10),2);
-  lcd.print("Not Ready yet   ");
-  return (500);
-}
+//   scale.set_scale(calibration_factor); //Adjust to this calibration factor
+//   Serial.print("Reading: ");
+//   Serial.print(scale.get_units(10),2);
+//   lcd.print("Not Ready yet   ");
+//   return (500);
+//}
 void loop(){
   firstCheck();
   int coin_type{selectCoin()};
   lcd.clear();
   lcd.setCursor(0,0);
-  lcd.print(calculations(coin_type, scale()));
+  lcd.print(calculations(coin_type, scaleWeight()));
   check_reloop();
 	
  
