@@ -1,4 +1,5 @@
 /*
+THIS CODE WAS TAKEN FROM SPARKFUN WEBSITE AS A CALIBRATION TOOL
  Example using the SparkFun HX711 breakout board with a scale
  By: Nathan Seidle
  SparkFun Electronics
